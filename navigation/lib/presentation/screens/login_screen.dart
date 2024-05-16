@@ -41,12 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // const Icon(
-            //   Icons.lock_person_outlined,
-            //   size: 100,
-            // ),
-            Image.network(
-              'https://pngimg.com/d/welcome_PNG13.png',
+            Image.asset(
+              'assets/images/welcome.png',
               height: 200,
               //width: 200,
               fit: BoxFit.cover,

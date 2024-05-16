@@ -5,16 +5,20 @@ import 'package:navigation/presentation/screens/book_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   static const name = 'Homescreen';
-  String userName;
-  HomeScreen({super.key, this.userName = ''});
+  final String userName;
+  const HomeScreen({super.key, this.userName = ''});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Home Screen'),
+          title: const Text('Browse Books'),
         ),
-        body: const _BooksView());
+        body: const _BooksView(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: const Icon(Icons.add),
+        ));
   }
 }
 
@@ -48,7 +52,7 @@ class BookItem extends StatelessWidget {
         trailing: const Icon(Icons.arrow_forward),
         leading: Image.network(book.coverURL),
         onTap: () {
-          context.push('/detail');
+          context.pushNamed(DetailScreen.name, extra: book.id);
         },
       ),
     );

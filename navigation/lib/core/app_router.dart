@@ -17,6 +17,6 @@ final appRouter = GoRouter(initialLocation: '/', routes: [
   GoRoute(
     name: DetailScreen.name,
     path: '/detail',
-    builder: (context, state) => DetailScreen(),
+    builder: (context, state) => DetailScreen(bookId: state.extra as int),
   )
 ]);
