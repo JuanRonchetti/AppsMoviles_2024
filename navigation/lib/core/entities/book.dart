@@ -1,10 +1,15 @@
+import 'package:floor/floor.dart';
+
+@entity
 class Book {
+  @PrimaryKey(autoGenerate: true)
+  int id;
+
   String name;
   String author;
   String year;
   String description;
   String coverURL;
-  int id;
 
   Book(
       {required this.name,
@@ -26,7 +31,7 @@ final List<Book> listOfBooks = [
           'Elantris was the capital of Arelon: gigantic, beautiful, literally radiant, filled with benevolent beings who used their powerful magical abilities for the benefit of all. Yet each of these demigods was once an ordinary person until touched by the mysterious transforming power of the Shaod. Ten years ago, without warning, the magic failed. Elantrians became wizened, leper-like, powerless creatures, and Elantris itself dark, filthy, and crumbling.',
       id: 1),
   Book(
-      name: 'Mistborn I: El Final Empire',
+      name: 'Mistborn I: The Final Empire',
       author: 'Brandon Sanderson',
       year: '2006',
       coverURL:
