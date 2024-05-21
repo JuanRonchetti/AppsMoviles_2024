@@ -176,7 +176,7 @@ class _$BookDao extends BookDao {
   }
 
   @override
-  Future<Book?> findPersonById(int id) async {
+  Future<Book?> findBookById(int id) async {
     return _queryAdapter.query('SELECT * FROM Book WHERE id = ?1',
         mapper: (Map<String, Object?> row) => Book(
             name: row['name'] as String,

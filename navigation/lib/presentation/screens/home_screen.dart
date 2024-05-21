@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigation/core/entities/book.dart';
+import 'package:navigation/data/book_repository.dart';
 import 'package:navigation/presentation/screens/book_detail_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static const name = 'Homescreen';
   final String userName;
-  const HomeScreen({super.key, this.userName = ''});
+  const HomeScreen(
+      {super.key, this.userName = '', required this.bookRepository});
+
+  final BookRepository bookRepository;
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<Book>> bookRequest;
+
+  @override
+  void initState() {
+    super.initState();
+    bookRequest = widget.bookRepository.getBooks();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +30,17 @@ class HomeScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Browse Books'),
         ),
-        body: const _BooksView(),
+        body: FutureBuilder(
+            future: bookRequest,
+            builder: ((context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasData) {
+                return _BooksView(listOfBooks: snapshot.data!);
+              } else {
+                return Text(snapshot.error.toString());
+              }
+            })),
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
           child: const Icon(Icons.add),
@@ -25,7 +51,10 @@ class HomeScreen extends StatelessWidget {
 class _BooksView extends StatelessWidget {
   const _BooksView({
     super.key,
+    required this.listOfBooks,
   });
+
+  final List<Book> listOfBooks;
 
   @override
   Widget build(BuildContext context) {
