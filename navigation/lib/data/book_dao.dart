@@ -9,6 +9,12 @@ abstract class BookDao {
   @Query('SELECT * FROM Book WHERE id = :id')
   Future<Book?> findBookById(int id);
 
+  @Query('SELECT COUNT(*) FROM Book')
+  Future<int?> getBookCount();
+
+  @Query('SELECT MAX(id) FROM Book')
+  Future<int?> getMaxId();
+
   @insert
   Future<void> insertBook(Book book);
 

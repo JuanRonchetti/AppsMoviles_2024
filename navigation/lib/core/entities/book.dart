@@ -9,13 +9,13 @@ class Book {
   String author;
   String year;
   String description;
-  String coverURL;
+  String? coverURL;
 
   Book(
       {required this.name,
       required this.author,
       required this.year,
       required this.description,
-      required this.coverURL,
+      this.coverURL,
       required this.id});
 }
