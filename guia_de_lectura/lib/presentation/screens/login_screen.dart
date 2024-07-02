@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,17 +30,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool passwordVisible = false;
   bool stayLoggedIn = false;
-
   bool _isLoading = false;
+  bool isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
+    FirebaseAuth.instance.currentUser != null ? isLoggedIn = true : false;
   }
 
   @override
   Widget build(BuildContext context) {
     ref.watch(myUserNotifierProvider);
+
+    // Si ya esta logeado, reanudar la sesion
+    if (isLoggedIn) {
+      Future.delayed(const Duration(milliseconds: 100))
+          .then((value) => loginFromPreviousSesion());
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.scaffoldBackgroundColorLight,
       body: Stack(children: [
@@ -133,6 +143,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
+                        // cargarBaseDeDatos();
                         context.pushNamed(PasswordScreen.name);
                       },
                       child: const Text(
@@ -199,7 +210,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           ),
         ),
-        // Show a loading indicator if the state is loading
         if (_isLoading)
           Container(
             color: AppTheme.detailColor.withOpacity(0.5),
@@ -213,6 +223,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  // ----------------------------------
+  // ------------- Boton --------------
+  // ----------------------------------
   void _onLoginButtonPressed() async {
     FocusManager.instance.primaryFocus?.unfocus();
     // ignore: unused_local_variable
@@ -265,4 +278,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
     }
   }
+
+  Future<void> loginFromPreviousSesion() async {
+    MyUser? myUser;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      // Pido el usuario a la base de datos para luego utilizarlo en la aplicacion
+      myUser =
+          await MyUser.getfromFirestore(FirebaseAuth.instance.currentUser!.uid);
+      ref.read(myUserNotifierProvider.notifier).setUser(myUser!);
+
+      // Pido los libros de la base de datos para iniciar la aplicacion
+      ref.read(bookProvider.notifier).getAllBooks();
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Paso a la homescreen
+      context.go('/home/${FirebaseAuth.instance.currentUser!.uid}');
+    } on FirebaseException {
+      showSnackBar('Error de conexion', context);
+    } catch (e) {}
+  }
+
+  //
+  // Precarga de base de datos, descomentar para su uso
+  //
+  // Future<void> cargarBaseDeDatos() async {
+  //   // Obtener referencia al archivo en Storage
+  //   final ref = FirebaseStorage.instance.ref();
+  //   final storageRef = ref.child('assets/images/book_covers/Sunlit.png');
+
+  //   // Obtener el enlace de descarga
+  //   String downloadURL = await storageRef.getDownloadURL();
+
+  //   Book newBook = Book(
+  //     title: 'El Hombre Iluminado',
+  //     year: '2023',
+  //     coverURL: downloadURL,
+  //     description:
+  //         'Años atrás tenía compañeros de armas y una causa en la que creer, pero ahora el hombre que se hace llamar a sí mismo Nomad solo conoce una vida huyendo. Forzado a saltar de mundo en mundo dentro del Cosmere, cada vez que la implacable «Night Brigade» se acerca demasiado, Nomad acaba llegando a un nuevo planeta donde se ve inmediatamente envuelto en una contienda entre un tirano y unos rebeldes.',
+  //     id: '25',
+  //     order: 25,
+  //   );
+
+  //   await newBook.addToFirestore();
+  // }
 }

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Book {
-  int id;
+  String id;
 
   String title;
   String year;
@@ -48,6 +48,24 @@ class Book {
       'order': order,
     };
   }
-}
 
-// El user tiene una lista de UserSettings donde almacena el id de cada libro, si es favoritos y su estado
+  Future<void> addToFirestore() async {
+    try {
+      // Obtener una referencia a la colección 'books'
+      CollectionReference booksRef =
+          FirebaseFirestore.instance.collection('books');
+
+      // Convertir el objeto Book a un mapa
+      Map<String, dynamic> bookData = toFirestore();
+
+      // Agregar el libro a Firestore y obtener el DocumentReference
+      DocumentReference docRef = await booksRef.add(bookData);
+
+      // Actualizar el documento con el id asignado por Firestore
+      await docRef.update({'id': docRef.id});
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error al subir el libro a Firestore: $e');
+    }
+  }
+}

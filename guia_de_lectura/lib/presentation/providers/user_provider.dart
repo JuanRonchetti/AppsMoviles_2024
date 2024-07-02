@@ -1,9 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guia_de_lectura/domain/user.dart';
 
-// StateProvider<MyUser> myUserProvider =
-//     StateProvider<MyUser>((ref) => MyUser(id: '', username: '', email: ''));
-
 final myUserNotifierProvider =
     StateNotifierProvider<MyUserNotifier, MyUser>((ref) => MyUserNotifier());
 
@@ -18,3 +15,6 @@ class MyUserNotifier extends StateNotifier<MyUser> {
     state = state.copyWith(updatedBookStatus: newBookStatus);
   }
 }
+
+StateProvider<MyUserBookStatus> initialStatusProvider =
+    StateProvider<MyUserBookStatus>((ref) => MyUserBookStatus());

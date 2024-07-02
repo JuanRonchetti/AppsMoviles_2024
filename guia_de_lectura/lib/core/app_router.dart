@@ -21,12 +21,44 @@ final appRouter = GoRouter(initialLocation: '/', routes: [
   GoRoute(
     name: SignUpScreen.name,
     path: '/signup',
-    builder: (context, state) => const SignUpScreen(),
+    pageBuilder: (context, state) {
+      return CustomTransitionPage(
+        transitionDuration: const Duration(milliseconds: 300),
+        key: state.pageKey,
+        child: const SignUpScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+              position: animation.drive(
+                Tween<Offset>(
+                  begin: const Offset(0.9, 0),
+                  end: Offset.zero,
+                ).chain(CurveTween(curve: Curves.easeIn)),
+              ),
+              child: child);
+        },
+      );
+    },
   ),
   GoRoute(
     name: PasswordScreen.name,
     path: '/password',
-    builder: (context, state) => const PasswordScreen(),
+    pageBuilder: (context, state) {
+      return CustomTransitionPage(
+        transitionDuration: const Duration(milliseconds: 300),
+        key: state.pageKey,
+        child: const PasswordScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+              position: animation.drive(
+                Tween<Offset>(
+                  begin: const Offset(0.9, 0),
+                  end: Offset.zero,
+                ).chain(CurveTween(curve: Curves.easeIn)),
+              ),
+              child: child);
+        },
+      );
+    },
   ),
   GoRoute(
     name: HomeScreen.name,

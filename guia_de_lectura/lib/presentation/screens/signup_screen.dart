@@ -52,7 +52,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             alignment: Alignment.topLeft,
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 100),
                 const Icon(
@@ -233,6 +232,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         });
                       }
                     },
+                    // ----------------------------------
+                    // --------- Fin Boton --------------
+                    // ----------------------------------
                     child: const Text(
                       'Registrarse',
                       style: TextStyle(
@@ -244,7 +246,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
           ),
         ),
-        // Show a loading indicator if the state is loading
         if (_isLoading)
           Container(
             color: AppTheme.detailColor.withOpacity(0.5),

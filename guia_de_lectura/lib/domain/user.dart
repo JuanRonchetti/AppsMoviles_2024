@@ -236,32 +236,4 @@ class MyUser {
       return;
     }
   }
-
-// Future<MyUser> signInWithEmailAndPassword
-// String email,
-// String password,
-// ) async {
-// try t
-// final loggedUser = await _firebaseAuth.signInWithEmailAndPassword(
-// email: email,
-// password: password,
-// ) ;
-// // Read the document from Firestore
-// final uid = loggedUser.user!.uid;
-// final userMap = await _firestore.collection('Users'). doc(uid) -get();
-// // Convert the document
-// into a MyUser object
-// final user = MyUser .fromMap(userMap.data() ?? (});
-// return user;
-// } on FirebaseAuthException catch (e) {
-// if (e-code = 'user-not-found') {
-// throw Exception('No user found for that email.');
-// } else if (e.code == 'wrong-password') €
-// throw Exception ('Wrong password provided for that user.');
-// }
-// throw Exception (e.message);
-// } on FirebaseException catch (e) {
-// throw Exception (e.message);
-// } catch (e) {
-// throw Exception(e.toString());
 }

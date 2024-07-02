@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:guia_de_lectura/config/theme/app_theme.dart';
 import 'package:guia_de_lectura/presentation/widgets/snackbar.dart';
@@ -39,7 +38,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
             alignment: Alignment.topLeft,
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 100),
                 const Icon(
@@ -132,7 +130,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
             ),
           ),
         ),
-        // Show a loading indicator if the state is loading
         if (_isLoading)
           Container(
             color: AppTheme.detailColor.withOpacity(0.5),

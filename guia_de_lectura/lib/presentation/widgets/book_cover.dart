@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:guia_de_lectura/config/theme/app_theme.dart';
 
 Widget getCover(String? coverURL) {
   if (coverURL != null) {
@@ -24,15 +26,16 @@ Widget getCoverWithSize(String? coverURL, double height, double width) {
   if (coverURL != null) {
     try {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Image.network(
-          coverURL,
+        borderRadius: BorderRadius.circular(15),
+        child: CachedNetworkImage(
+          imageUrl: coverURL,
           height: height,
           width: width,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.menu_book,
-                size: (height < width) ? height : width);
-          },
+          placeholder: (context, url) => const CircularProgressIndicator(
+            color: AppTheme.detailColor,
+          ),
+          errorWidget: (context, url, error) =>
+              Icon(Icons.menu_book, size: (height < width) ? height : width),
         ),
       );
     } catch (e) {

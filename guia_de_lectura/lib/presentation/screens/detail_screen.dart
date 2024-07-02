@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import 'package:guia_de_lectura/domain/user.dart';
 import 'package:guia_de_lectura/presentation/providers/book_provider.dart';
 import 'package:guia_de_lectura/presentation/providers/user_provider.dart';
 import 'package:guia_de_lectura/presentation/widgets/book_cover.dart';
+import 'package:guia_de_lectura/presentation/widgets/snackbar.dart';
 
 class DetailScreen extends ConsumerStatefulWidget {
   DetailScreen({super.key, required this.book, required this.userId});
@@ -23,7 +25,7 @@ class DetailScreen extends ConsumerStatefulWidget {
 
 class _DetailScreenState extends ConsumerState<DetailScreen> {
   List<String> estados = ['Pendiente', 'Leyendo', 'Leido'];
-  String selectedItem = 'Pendiente';
+  // String selectedItem = 'Pendiente';
   late MyUser myUser;
   BookRepository bookRepository = BookRepository.emptyRepository();
 
@@ -32,7 +34,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
   @override
   void initState() {
     super.initState();
-    // ref.read(myUserProvider.notifier);
+
     bookRepository = BookRepository.fromList(ref.read(bookProvider));
   }
 
@@ -42,7 +44,6 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
     MyUserBookStatus status = (myUser.hasBookStatusList)
         ? myUser.getUserBookStatus(widget.book)!
         : MyUserBookStatus();
-    // final MyUserBookStatus _initialStatus = status;
 
     Book? previousBook = bookRepository.getPreviousBook(widget.book);
     Book? nextBook = bookRepository.getNextBook(widget.book);
@@ -57,17 +58,23 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
             foregroundColor: AppTheme.textColor,
             leading: IconButton(
               onPressed: () async {
-                // ref.read(myUserNotifierProvider).updateUserBookStatus(status);
-                // if (_initialStatus != status) {
-                setState(() {
-                  _isLoading = true;
-                });
-                await MyUser.saveToFirestore(myUser);
-                setState(() {
-                  _isLoading = false;
-                });
-                // }
-                context.go('/guide/${myUser.id}', extra: bookRepository);
+                try {
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  await MyUser.saveToFirestore(myUser);
+                  setState(() {
+                    _isLoading = false;
+                  });
+
+                  context.go('/guide/${myUser.id}', extra: bookRepository);
+                } catch (e) {
+                  showSnackBar(e.toString(), context);
+                } finally {
+                  setState(() {
+                    _isLoading = false;
+                  });
+                }
               },
               icon: const Icon(Icons.arrow_back),
             )),
@@ -87,7 +94,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                 ),
               ),
               DropdownButton(
-                  value: selectedItem,
+                  value: myUser.getStatusByBookTitle(widget.book.title),
                   dropdownColor: AppTheme.primaryColor,
                   iconEnabledColor: AppTheme.detailColor,
                   style: const TextStyle(
@@ -95,7 +102,6 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                     decoration: TextDecoration.none,
                   ),
                   underline: Container(
-                    // Remueve el subrayado
                     height: 0,
                     color: Colors.transparent,
                   ),
@@ -105,7 +111,12 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                       child: Text(item),
                     );
                   }).toList(),
-                  onChanged: (String? value) {}),
+                  onChanged: (String? value) {
+                    status.status = value!;
+                    ref
+                        .read(myUserNotifierProvider.notifier)
+                        .updateUserBookStatus(status);
+                  }),
               const SizedBox(width: 70),
               IconButton(
                 icon: const Icon(Icons.star),
@@ -114,7 +125,6 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                   ref
                       .read(myUserNotifierProvider.notifier)
                       .updateUserBookStatus(status);
-                  print(myUser.getIsFavoriteByBookTitle(widget.book.title));
                 },
                 color: myUser.getIsFavoriteByBookTitle(widget.book.title)!
                     ? Colors.yellow
@@ -133,7 +143,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 10),
-                  getCoverWithSize(widget.book.coverURL, 300, 200),
+                  getCoverWithSize(widget.book.coverURL, 250, 250),
                   const SizedBox(height: 20),
                   Text(
                     widget.book.title,
@@ -147,25 +157,26 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                     widget.book.saga ?? 'Novela independiente',
                   ),
                   const SizedBox(height: 10),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Libro anterior:'),
-                      SizedBox(width: 100),
-                      Text('Libro siguiente:')
-                    ],
-                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      previousBook != null
-                          ? Text(previousBook.title)
-                          : const Text(''),
+                      SizedBox(
+                        width: 130,
+                        height: 150,
+                        child: FadeInLeft(
+                            child:
+                                bookContainer(previousBook, 'Libro anterior:')),
+                      ),
                       const SizedBox(width: 100),
-                      nextBook != null ? Text(nextBook.title) : const Text(''),
+                      SizedBox(
+                          width: 130,
+                          height: 150,
+                          child: FadeInRight(
+                              child:
+                                  bookContainer(nextBook, 'Libro siguiente:'))),
                     ],
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
                   Text(widget.book.description),
                 ],
               ),
@@ -181,5 +192,38 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
               ),
           ]),
         ));
+  }
+
+  // ----------------------------------
+  // ---------Container Libro ---------
+  // ----------------------------------
+  Widget bookContainer(Book? book, String text) {
+    if (book != null) {
+      return GestureDetector(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(text),
+              Text(
+                book.title,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.detailColor,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppTheme.detailColor),
+              ),
+              const SizedBox(height: 5),
+              getCoverWithSize(book.coverURL, 70, 70)
+            ],
+          ),
+        ),
+        onTap: () {
+          context.go('/detail/${widget.userId}', extra: book);
+        },
+      );
+    } else {
+      return const Text('');
+    }
   }
 }
